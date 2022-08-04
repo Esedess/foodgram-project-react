@@ -10,6 +10,7 @@ class User(AbstractUser):
         'Адрес электронной почты',
         max_length=254,
         unique=True,
+        blank=False,
         error_messages={
             'unique': 'Пользователь с такой почтой уже существует.',
         },
@@ -18,6 +19,7 @@ class User(AbstractUser):
         'Имя пользователя',
         max_length=150,
         unique=True,
+        blank=False,
         help_text=(
             'Обязательное поле. 150 символов или меньше.'
             'Только буквы, цифры и @/./+/-/_'),
@@ -26,11 +28,20 @@ class User(AbstractUser):
             'unique': 'Пользователь с таким именем уже существует.',
         },
     )
-    first_name = models.CharField('Имя', max_length=150)
-    last_name = models.CharField('Фамилия', max_length=150)
-    password = models.CharField('Пароль', max_length=150)
-    confirmation_code = models.CharField(
-        max_length=20,
+    first_name = models.CharField(
+        'Имя',
+        blank=False,
+        max_length=150,
+    )
+    last_name = models.CharField(
+        'Фамилия',
+        blank=False,
+        max_length=150,
+    )
+    password = models.CharField(
+        'Пароль',
+        blank=False,
+        max_length=150,
     )
 
     class Meta:

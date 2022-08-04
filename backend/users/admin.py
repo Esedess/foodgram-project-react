@@ -12,12 +12,11 @@ class UserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'password',
-        'confirmation_code',
         'is_staff',
     )
-    list_display_links = ('username',)
-    list_filter = ('is_staff',)
-    search_fields = ('username', 'email', 'is_staff',)
+    list_display_links = ('pk', 'username', 'email')
+    list_filter = ('username', 'email')
+    search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
     save_on_top = True
     actions = ['Delete', ]
@@ -26,5 +25,8 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('user', 'author')
-    list_filter = ('user',)
+    list_filter = ('user', 'author')
+    search_fields = ('user', 'author')
     empty_value_display = '-пусто-'
+    save_on_top = True
+    actions = ['Delete', ]

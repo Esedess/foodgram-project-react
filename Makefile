@@ -20,8 +20,16 @@ rmf:
 rmv:
 	sudo docker volume rm infra_db_value infra_frontend_value infra_media_value infra_static_value
 
-build:
+rb:
+	sudo docker container rm django
+	sudo docker image rm kapkadibab/foodgram:latest
 	sudo docker-compose -f infra/docker-compose.yml up
+
+up:
+	sudo docker-compose -f infra/docker-compose.yml up
+
+build:
+	sudo docker-compose -f infra/docker-compose.yml up --build
 
 rebuild:
 	sudo docker-compose -f infra/docker-compose.yml up -d --build
