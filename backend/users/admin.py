@@ -13,10 +13,11 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'password',
         'is_staff',
+        'is_active',
     )
     list_display_links = ('pk', 'username', 'email')
-    list_filter = ('username', 'email')
     search_fields = ('username', 'email')
+    search_help_text = 'Поиск по username и email'
     empty_value_display = '-пусто-'
     save_on_top = True
     actions = ['Delete', ]
@@ -24,9 +25,13 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
-    list_filter = ('user', 'author')
-    search_fields = ('user', 'author')
+    filter_horizontal = ('author',)
+    list_display = ('user', 'get_author')
+    search_fields = ('user__username', 'author__username')
     empty_value_display = '-пусто-'
     save_on_top = True
     actions = ['Delete', ]
+
+    def get_author(self, obj):
+        return ", ".join([author.username for author in obj.author.all()])
+    get_author.short_description = 'Авторы'

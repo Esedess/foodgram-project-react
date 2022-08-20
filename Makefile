@@ -34,6 +34,11 @@ build:
 rebuild:
 	sudo docker-compose -f infra/docker-compose.yml up -d --build
 
+db:
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py makemigrations
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py migrate
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py import_all
+
 makemigrations:
 	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py makemigrations
 

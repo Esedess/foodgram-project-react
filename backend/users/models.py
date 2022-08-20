@@ -21,7 +21,7 @@ class User(AbstractUser):
         unique=True,
         blank=False,
         help_text=(
-            'Обязательное поле. 150 символов или меньше.'
+            '150 символов или меньше.'
             'Только буквы, цифры и @/./+/-/_'),
         validators=(username_validator,),
         error_messages={
@@ -45,7 +45,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ('-username',)
+        ordering = ('-date_joined',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         constraints = [
@@ -69,9 +69,8 @@ class Follow(models.Model):
         verbose_name='Фоловер',
         help_text='Фоловер',
     )
-    author = models.ForeignKey(
+    author = models.ManyToManyField(
         User,
-        on_delete=models.CASCADE,
         blank=True,
         null=True,
         related_name='following',
@@ -80,5 +79,6 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ('-user',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'

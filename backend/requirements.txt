@@ -7,6 +7,7 @@ coreschema==0.0.4
 cryptography==37.0.4
 defusedxml==0.7.1
 Django==4.0.6
+django-colorfield==0.7.2
 django-filter==22.1
 django-templated-mail==1.1.1
 djangorestframework==3.13.1
@@ -21,6 +22,9 @@ Jinja2==3.1.2
 MarkupSafe==2.1.1
 mccabe==0.6.1
 oauthlib==3.2.0
+Pillow==9.2.0
+progress==1.6
+psycopg2-binary==2.9.3
 pycodestyle==2.8.0
 pycparser==2.21
 pyflakes==2.4.0
@@ -36,6 +40,3 @@ social-auth-core==4.3.0
 sqlparse==0.4.2
 uritemplate==4.1.1
 urllib3==1.26.11
-psycopg2-binary==2.9.3
-pillow==9.2.0
-# 
