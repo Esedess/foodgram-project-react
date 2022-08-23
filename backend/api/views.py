@@ -5,14 +5,12 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filter
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework import (
-    filters, mixins, permissions, serializers, status, viewsets,
-)
+from rest_framework import mixins, permissions, serializers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from .filters import RecipieFilter
+from .filters import IngredientsFilter, RecipieFilter
 from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminOrOwnerOrReadOnly
 from .serializers import (
@@ -159,7 +157,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientsSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (IngredientsFilter,)
     search_fields = ('^name',)
 
 
