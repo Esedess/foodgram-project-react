@@ -279,13 +279,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             if not instance.recipes.filter(pk=pk).exists():
-                message = {'errors': 'Такого рецепта нет в избранном'}
+                message = {'Такого рецепта нет в избранном'}
                 raise ValidationError(message)
             instance.recipes.remove(pk)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         if instance.recipes.filter(pk=pk).exists():
-            message = {'errors': 'Такой рецепт уже есть в избранном'}
+            message = {'Такой рецепт уже есть в избранном'}
             raise ValidationError(message)
         instance.recipes.add(pk)
 
@@ -303,13 +303,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             if not instance.recipes.filter(pk=pk).exists():
-                message = {'errors': 'Такого рецепта нет в списке покупок'}
+                message = {'Такого рецепта нет в списке покупок'}
                 raise ValidationError(message)
             instance.recipes.remove(pk)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         if instance.recipes.filter(pk=pk).exists():
-            message = {'errors': 'Такой рецепт уже есть в списке покупок'}
+            message = {'Такой рецепт уже есть в списке покупок'}
             raise ValidationError(message)
         instance.recipes.add(pk)
 

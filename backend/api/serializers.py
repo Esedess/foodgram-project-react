@@ -214,7 +214,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {field: {'required': True} for field in fields}
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
+class FavoriteAndCartSerializerMixin(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         read_only=True,
         default=serializers.CurrentUserDefault(),
@@ -229,26 +229,16 @@ class FavoriteSerializer(serializers.ModelSerializer):
         )
 
         return serializer.data
+
+
+class FavoriteSerializer(FavoriteAndCartSerializerMixin):
 
     class Meta:
         fields = '__all__'
         model = Favorite
 
 
-class CartSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault(),
-    )
-    recipes = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
-    )
-
-    def to_representation(self, instance):
-        serializer = SimpleRecipeSerializer(
-            instance.get('recipes'),
-        )
-        return serializer.data
+class CartSerializer(FavoriteAndCartSerializerMixin):
 
     class Meta:
         model = Cart
