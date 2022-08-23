@@ -1,6 +1,6 @@
 # api_yamdb
 
-![workflow!](https://github.com/KapkaDibab/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
+![workflow!](https://github.com/KapkaDibab/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 <h1 align="center">Привет! </h1>
 <h3 align="center">Я студент факультета Бэкенд. Когорта №9+ Яндекс.Практикум</h3>
