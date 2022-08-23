@@ -1,4 +1,4 @@
-# api_yamdb
+# foodgram-project-react
 
 ![workflow!](https://github.com/KapkaDibab/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
