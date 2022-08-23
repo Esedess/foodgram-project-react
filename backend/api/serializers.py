@@ -172,11 +172,10 @@ class Base64ImageField(serializers.ImageField):
         ext = format.split('/')[-1]
         name = get_random_string(22) + '.' + ext
 
-        data = ContentFile(
+        return ContentFile(
             base64.b64decode(imgstr),
             name=name,
         )
-        return data
 
 
 class IngredientsAmountSerializer(serializers.ModelSerializer):

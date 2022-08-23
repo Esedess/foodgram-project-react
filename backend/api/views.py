@@ -61,13 +61,12 @@ class UserViewSet(
         return self.request.user
 
     def get_queryset(self):
-        queryset = self.queryset
         if self.action in ('subscriptions', 'subscribe'):
-            queryset = queryset.filter(
+            return self.queryset.filter(
                 subscribing__user=self.get_user()).annotate(
                 recipes_count=Count('recipe'),
             )
-        return queryset
+        return self.queryset
 
     def get_permissions(self):
         if self.action in ('create', 'list', 'reset_password', ):
@@ -179,13 +178,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.is_anonymous:
             return self.queryset
-        queryset = self.queryset.annotate(
+        return self.queryset.annotate(
             is_favorited=Exists(
                 user.favorite_set.filter(recipes=OuterRef('pk'))),
             is_in_shopping_cart=Exists(
                 user.cart_set.filter(recipes=OuterRef('pk'))),
         )
-        return queryset
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):

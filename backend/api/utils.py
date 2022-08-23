@@ -18,8 +18,7 @@ def get_cart_items(recipes):
                 data.update({name: amount + data.pop(name)})
             else:
                 data.update({name: amount})
-    cart_items = '\n'.join(
+
+    return '\n'.join(
         f'{key} - {str(value)}' for key, value in data.items()
     )
-
-    return cart_items

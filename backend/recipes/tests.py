@@ -71,6 +71,19 @@ META_ORDERING = {
     'Favorite': ('-user',),
     'Cart': ('-user',),
 }
+SMALL_GIF = (
+    b'\x47\x49\x46\x38\x39\x61\x02\x00'
+    b'\x01\x00\x80\x00\x00\x00\x00\x00'
+    b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+    b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+    b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+    b'\x0A\x00\x3B'
+)
+UPLOADED_IMG = SimpleUploadedFile(
+    name='small.gif',
+    content=SMALL_GIF,
+    content_type='image/gif'
+)
 
 
 def create_user(
@@ -116,19 +129,6 @@ def create_ingredient(name='Test_ingredient', measurement_unit='test_kg'):
 def create_recipe(author, name, tag, ingredient):
     """Создание тестового рецепта.
     """
-    SMALL_GIF = (
-        b'\x47\x49\x46\x38\x39\x61\x02\x00'
-        b'\x01\x00\x80\x00\x00\x00\x00\x00'
-        b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-        b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-        b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-        b'\x0A\x00\x3B'
-    )
-    UPLOADED_IMG = SimpleUploadedFile(
-        name='small.gif',
-        content=SMALL_GIF,
-        content_type='image/gif'
-    )
     new_recipe = Recipe(
         author=author,
         name=name,
