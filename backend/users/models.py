@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.db.models import CheckConstraint, F, Q, UniqueConstraint
 
 
 class User(AbstractUser):
@@ -48,32 +49,31 @@ class User(AbstractUser):
         ordering = ('-date_joined',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('username', 'email'),
                 name='unique_user'
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return self.username
 
 
-class Follow(models.Model):
+class Subscribe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        blank=True,
         null=True,
-        related_name='follower',
+        related_name='subscriber',
         verbose_name='Фоловер',
         help_text='Фоловер',
     )
-    author = models.ManyToManyField(
+    author = models.ForeignKey(
         User,
-        blank=True,
+        on_delete=models.CASCADE,
         null=True,
-        related_name='following',
+        related_name='subscribing',
         verbose_name='Автор',
         help_text='Автор',
     )
@@ -82,3 +82,11 @@ class Follow(models.Model):
         ordering = ('-user',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        constraints = (
+            UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_following'),
+            CheckConstraint(
+                check=~Q(user=F('author')),
+                name='self_following',),
+        )

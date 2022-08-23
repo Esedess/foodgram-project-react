@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, tag
 
-from .models import Follow
+from users.models import Subscribe
 
 User = get_user_model()
 
@@ -18,14 +18,14 @@ USER_META_VERBOSE_NAME = 'Пользователь'
 USER_META_VERBOSE_NAME_PLURAL = 'Пользователи'
 USER_META_ORDERING = ('-date_joined',)
 
-# Поля модели Follow
-FOLLOW_FIELDS_VERBOSES = {
+# Поля модели Subscribe
+SUBSCRIBE_FIELDS_VERBOSES = {
     'user': 'Фоловер',
     'author': 'Автор',
 }
-FOLLOW_META_VERBOSE_NAME = 'Подписка'
-FOLLOW_META_VERBOSE_NAME_PLURAL = 'Подписки'
-FOLLOW_META_ORDERING = ('-user',)
+SUBSCRIBE_META_VERBOSE_NAME = 'Подписка'
+SUBSCRIBE_META_VERBOSE_NAME_PLURAL = 'Подписки'
+SUBSCRIBE_META_ORDERING = ('-user',)
 
 
 def create_user(
@@ -49,12 +49,6 @@ def create_user(
     return new_test_user
 
 
-@override_settings(DATABASES={
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_database',
-    }
-})
 class UserModelTest(TestCase):
     def setUp(self):
         self.user = create_user()
@@ -89,44 +83,38 @@ class UserModelTest(TestCase):
         self.assertEqual(self.user._meta.ordering, USER_META_ORDERING)
 
 
-@override_settings(DATABASES={
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_database',
-    }
-})
-class FollowModelTest(TestCase):
+class SubscribeModelTest(TestCase):
     def setUp(self):
         self.follower = create_user()
         self.following = create_user(
             username='Test_following',
             email='following@test.ru',
         )
-        self.follow = Follow.objects.create(
+        self.follow = Subscribe.objects.create(
             user=self.follower,
+            author=self.following,
         )
-        self.follow.author.add(self.following)
 
     @tag('models')
     def test_follow_verbose_name(self):
         """Проверяем, что у модели Follow корректные verbose_name."""
         follow = self.follow
-        for field, expected_value in FOLLOW_FIELDS_VERBOSES.items():
+        for field, expected_value in SUBSCRIBE_FIELDS_VERBOSES.items():
             with self.subTest(field=field):
                 self.assertEqual(
                     follow._meta.get_field(field).verbose_name, expected_value
                 )
         self.assertEqual(
             follow._meta.verbose_name,
-            FOLLOW_META_VERBOSE_NAME,
+            SUBSCRIBE_META_VERBOSE_NAME,
         )
         self.assertEqual(
             follow._meta.verbose_name_plural,
-            FOLLOW_META_VERBOSE_NAME_PLURAL,
+            SUBSCRIBE_META_VERBOSE_NAME_PLURAL,
         )
 
     @tag('models')
     def test_follow_ordering(self):
         """Проверяем, что подписки правильно сортируются."""
         follow = self.follow
-        self.assertEqual(follow._meta.ordering, FOLLOW_META_ORDERING)
+        self.assertEqual(follow._meta.ordering, SUBSCRIBE_META_ORDERING)

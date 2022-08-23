@@ -47,12 +47,6 @@ services:
       - media_value:/var/html/media/
 
 volumes:
-  # frontend_value:
-  #   driver: local
-  #   driver_opts:
-  #     o: bind
-  #     type: ext4
-  #     device: /www/frontend/
   static_value:
     driver: local
     driver_opts:

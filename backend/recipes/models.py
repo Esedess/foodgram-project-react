@@ -62,12 +62,12 @@ class Ingredients(models.Model):
         ordering = ('-name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('name', 'measurement_unit'),
                 name='unique_ingredient'
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return self.name
@@ -81,6 +81,7 @@ class Recipe(models.Model):
     )
     author = models.ForeignKey(
         User,
+        null=True,
         on_delete=models.CASCADE,
         related_name='recipe',
         verbose_name='Автор',
@@ -110,9 +111,9 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
         help_text='Минимально - 1 минута',
-        validators=[
+        validators=(
             MinValueValidator(1),
-        ]
+        ),
     )
     publication_date = models.DateTimeField(
         'Дата публикации',
@@ -129,32 +130,36 @@ class Recipe(models.Model):
 
 
 class IngredientsAmount(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, null=True, on_delete=models.CASCADE)
     ingredients = models.ForeignKey(
-        Ingredients, on_delete=models.CASCADE, verbose_name='Ингредиент',)
+        Ingredients,
+        null=True,
+        on_delete=models.CASCADE, verbose_name='Ингредиент',
+    )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         help_text='Минимально - 1 шт',
-        validators=[
+        validators=(
             MinValueValidator(1),
-        ]
+        ),
     )
 
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('recipe', 'ingredients'),
                 name='unique_recipe_ingredient'
-            )
-        ]
+            ),
+        )
 
 
 class FavoriteAndCartBaseContent(models.Model):
     user = models.ForeignKey(
         User,
+        null=True,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
     )

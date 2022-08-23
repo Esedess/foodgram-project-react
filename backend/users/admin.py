@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.http import urlencode
 
-from .models import Follow, User
+from .models import Subscribe, User
 
 
 @admin.register(User)
@@ -11,9 +14,7 @@ class UserAdmin(admin.ModelAdmin):
         'email',
         'first_name',
         'last_name',
-        'password',
-        'is_staff',
-        'is_active',
+        'show_count',
     )
     list_display_links = ('pk', 'username', 'email')
     search_fields = ('username', 'email')
@@ -22,16 +23,22 @@ class UserAdmin(admin.ModelAdmin):
     save_on_top = True
     actions = ['Delete', ]
 
+    @admin.display(description='Подписки')
+    def show_count(self, obj):
+        count = Subscribe.objects.filter(user=obj).count()
+        url = (
+            reverse('admin:users_subscribe_changelist')
+            + '?'
+            + urlencode({'user__id__exact': f'{obj.id}'})
+        )
+        return format_html(
+            'Подписан на {}. <a href="{}">Показать </a>', count, url)
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    filter_horizontal = ('author',)
-    list_display = ('user', 'get_author')
-    search_fields = ('user__username', 'author__username')
+
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'author')
+    search_fields = ('user', 'author')
     empty_value_display = '-пусто-'
     save_on_top = True
     actions = ['Delete', ]
-
-    def get_author(self, obj):
-        return ", ".join([author.username for author in obj.author.all()])
-    get_author.short_description = 'Авторы'

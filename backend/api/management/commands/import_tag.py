@@ -9,7 +9,7 @@ from recipes.models import Tag
 
 
 class Command(BaseCommand):
-    help = "Загружает данные из csv или json"
+    help = 'Загружает данные из csv или json'
 
     def handle(self, *args, **options):
         spinner = LineSpinner('Добавляем тэги в базу ')
@@ -17,7 +17,7 @@ class Command(BaseCommand):
             open(
                 f'{settings.BASE_DIR}/data/tags.csv',
                 'r',
-                encoding="utf8"
+                encoding='utf8'
             )
         ):
             spinner.next()

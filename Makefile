@@ -26,18 +26,32 @@ rb:
 	sudo docker-compose -f infra/docker-compose.yml up
 
 up:
-	sudo docker-compose -f infra/docker-compose.yml up
+	sudo docker-compose -f infra/docker-compose.yml up 
 
 build:
-	sudo docker-compose -f infra/docker-compose.yml up --build
+	sudo docker-compose -f infra/docker-compose.yml up --build 
 
 rebuild:
 	sudo docker-compose -f infra/docker-compose.yml up -d --build
 
 db:
 	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py makemigrations
-	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py migrate
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py migrate --run-syncdb
+
+db_import:
 	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py import_all
+
+test:
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py test --noinput
+
+test_api:
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py test api --noinput
+
+test_users:
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py test users --noinput
+
+test_recipes:
+	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py test recipes --noinput
 
 makemigrations:
 	sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py makemigrations

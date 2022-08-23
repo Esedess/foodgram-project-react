@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Загружает ингредиенты. csv по умолчанию, json с флагом -j (--json)"
+    help = 'Загружает ингредиенты. csv по умолчанию, json с флагом -j (--json)'
 
     def handle(self, *args, **options):
         if options.get('json'):

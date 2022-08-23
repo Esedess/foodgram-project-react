@@ -9,7 +9,7 @@ from users.models import User
 
 
 class Command(BaseCommand):
-    help = "Загружает данные из csv или json"
+    help = 'Загружает данные из csv или json'
 
     def handle(self, *args, **options):
         spinner = LineSpinner('Добавляем пользователей в базу ')
@@ -30,7 +30,7 @@ class Command(BaseCommand):
             open(
                 f'{settings.BASE_DIR}/data/users.csv',
                 'r',
-                encoding="utf8"
+                encoding='utf8'
             )
         ):
             username, email, first_name, last_name, password = row.values()

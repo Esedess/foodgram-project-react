@@ -1,8 +1,14 @@
+import shutil
+import tempfile
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings, tag
 
 from .models import Cart, Favorite, Ingredients, IngredientsAmount, Recipe, Tag
+
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 User = get_user_model()
 
@@ -17,7 +23,7 @@ STR = {
 }
 FIELDS_VERBOSES = {
     'Tag': {
-        'name': 'Имя тэга',
+        'name': 'Название тэга',
         'color': 'Цвет тэга',
         'slug': 'Ссылка',
     },
@@ -123,14 +129,16 @@ def create_recipe(author, name, tag, ingredient):
         content=SMALL_GIF,
         content_type='image/gif'
     )
-    new_recipe = Recipe.objects.create(
+    new_recipe = Recipe(
         author=author,
         name=name,
         image=UPLOADED_IMG,
         text='test recipe text',
         cooking_time=1,
     )
-    new_recipe.tags.add(tag.id)
+    tag.save()
+    new_recipe.save()
+    new_recipe.tags.add(tag)
     IngredientsAmount(
         recipe=new_recipe,
         ingredients=ingredient,
@@ -144,6 +152,8 @@ def create_favorite(user, recipe):
     """Создание тестового избраного рецепта.
     """
     favorite = Favorite.objects.create(user=user)
+    recipe.save()
+    favorite.save()
     favorite.recipes.add(recipe)
     return favorite
 
@@ -152,7 +162,9 @@ def create_cart(user, recipe):
     """Создание тестовой карзины покупок.
     """
     cart = Cart.objects.create(user=user)
-    cart.recipes.add(recipe.id)
+    recipe.save()
+    cart.save()
+    cart.recipes.add(recipe.pk)
     return cart
 
 
@@ -160,12 +172,7 @@ def get_class_name(obj):
     return obj.__class__.__name__
 
 
-@override_settings(DATABASES={
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test_database',
-    }
-})
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class RecipesModelsTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -188,6 +195,11 @@ class RecipesModelsTest(TestCase):
             cls.favorite,
             cls.cart,
         )
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     @tag('models')
     def test_models_have_correct_object_names(self):

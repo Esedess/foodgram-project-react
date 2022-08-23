@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Aggregate, Count
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -7,7 +6,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from recipes.models import (
     Cart, Favorite, Ingredients, IngredientsAmount, Recipe, Tag,
 )
-from users.models import Follow
+from users.models import Subscribe
 
 User = get_user_model()
 
@@ -31,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
 
-        return user.follower.filter(author=obj).exists()
+        return user.subscriber.filter(author=obj).exists()
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -82,9 +81,22 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
 
 
-class FollowSerializer(UserSerializer):
+class SubscribeSerializer(UserSerializer):
     recipes_count = serializers.IntegerField()
     recipes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
 
     def get_recipes(self, obj):
         recipes_limit = self.context.get(
@@ -105,31 +117,25 @@ class FollowSerializer(UserSerializer):
 
         return serializer.data
 
+
+class SubscribeCreateDeleteSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
+        model = Subscribe
+        fields = '__all__'
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Subscribe.objects.all(),
+                fields=('user', 'author')
+            ),
         )
 
-
-class FollowCreateDeleteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Follow
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'author']
+    def validate(self, data):
+        if data['user'] == data['author']:
+            raise serializers.ValidationError(
+                'Нельзя подписываться на самого себя.'
             )
-        ]
+        return data
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -205,6 +211,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
+        extra_kwargs = {field: {'required': True} for field in fields}
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -226,12 +233,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Favorite
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=Favorite.objects.all(),
-        #         fields=['user', 'recipes']
-        #     )
-        # ]
 
 
 class CartSerializer(serializers.ModelSerializer):

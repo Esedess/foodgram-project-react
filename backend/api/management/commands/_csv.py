@@ -13,7 +13,7 @@ def load_ingredient():
         open(
             f'{settings.BASE_DIR}/data/ingredients.csv',
             'r',
-            encoding="utf8"
+            encoding='utf8'
         )
     ):
         spinner.next()

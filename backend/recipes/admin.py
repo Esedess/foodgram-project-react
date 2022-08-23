@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.http import urlencode
 
 from .models import Cart, Favorite, Ingredients, IngredientsAmount, Recipe, Tag
 
@@ -44,6 +47,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'image',
         'text',
         'cooking_time',
+        'show_count',
         'publication_date',
     )
     filter_horizontal = ('tags',)
@@ -57,25 +61,36 @@ class RecipeAdmin(admin.ModelAdmin):
     save_on_top = True
     actions = ['Delete', ]
 
+    @admin.display(description='Тэги')
     def get_tags(self, obj):
         return "\n".join([tag.name for tag in obj.tags.all()])
-    get_tags.short_description = 'Тэги'
 
+    @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
         return "\n".join([ingr.name for ingr in obj.ingredients.all()])
-    get_ingredients.short_description = 'Ингредиенты'
+
+    @admin.display(description='Добавлений в избранное')
+    def show_count(self, obj):
+        count = Favorite.objects.filter(recipes__exact=obj).count()
+        url = (
+            reverse("admin:recipes_favorite_changelist")
+            + '?'
+            + urlencode({"recipes__id__exact": f"{obj.id}"})
+        )
+        return format_html(
+            'В избранном у {}. <a href="{}">Показать </a>', count, url)
 
 
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     filter_horizontal = ('recipes',)
     list_display = ('user', 'get_recipes')
-    list_filter = ('user',)
+    list_filter = ('user', 'recipes')
     empty_value_display = '-пусто-'
 
+    @admin.display(description='Рецепты')
     def get_recipes(self, obj):
-        return "\n".join([recipe.name for recipe in obj.recipes.all()])
-    get_recipes.short_description = 'Рецепты'
+        return '\n'.join([recipe.name for recipe in obj.recipes.all()])
 
 
 @admin.register(Cart)
@@ -87,13 +102,13 @@ class CartAdmin(admin.ModelAdmin):
         'get_recipes',
     )
     list_display_links = ('user',)
-    list_filter = ('user',)
+    list_filter = ('user', 'recipes')
     search_fields = ('user',)
     empty_value_display = '-пусто-'
     save_on_top = True
     actions = ['Delete', ]
     actions_on_top = True
 
+    @admin.display(description='Рецепты')
     def get_recipes(self, obj):
-        return "\n".join([recipe.name for recipe in obj.recipes.all()])
-    get_recipes.short_description = 'Рецепты'
+        return '\n'.join([recipe.name for recipe in obj.recipes.all()])
