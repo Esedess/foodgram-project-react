@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from django.utils.crypto import get_random_string
@@ -8,9 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', get_random_string(12))
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
+    'esedess.sytes.net',
+    '158.160.4.31',
     '.localhost',
     '127.0.0.1',
     '[::1]',
@@ -18,6 +21,8 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    'http://esedess.sytes.net',
+    'http://158.160.4.31',
     'http://localhost',
     'http://127.0.0.1',
     'http://django',
@@ -76,6 +81,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 
 # Database
+
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
@@ -89,6 +95,11 @@ DATABASES = {
         },
     }
 }
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test_database'
+    }
 
 
 # Password validation

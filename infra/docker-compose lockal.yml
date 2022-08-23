@@ -12,6 +12,9 @@ services:
   django:
     image: kapkadibab/foodgram:latest
     restart: always
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     container_name: django
     volumes:
       - static_value:/app/static/
@@ -23,6 +26,9 @@ services:
 
   frontend:
     image: frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     container_name: frontend
     volumes:
       - ../frontend/:/app/result_build/
@@ -34,7 +40,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build/:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/

@@ -39,7 +39,8 @@ jobs:
     - name: Test with flake8 and django tests
       run: | 
         python -m flake8 
-        python -m pytest
+        ./manage.py makemigrations && ./manage.py migrate
+        ./manage.py test
 
     - name: send message
       uses: appleboy/telegram-action@master
@@ -65,9 +66,9 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2 
         with:
-          context: ./api_yamdb/
+          context: ./backend/
           push: true
-          tags: kapkadibab/api_yamdb:latest 
+          tags: kapkadibab/foodgram:latest 
       - name: send message
         uses: appleboy/telegram-action@master
         with:
@@ -90,8 +91,6 @@ jobs:
           envkey_DB_HOST: ${{ secrets.DB_HOST }}
           envkey_DB_PORT: ${{ secrets.DB_PORT }}
           envkey_SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          envkey_EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
-          envkey_EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
           file_name: .env
           fail_on_empty: false
       - name: executing remote ssh commands to deploy
@@ -102,9 +101,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo docker compose stop
-            sudo docker compose rm web -f
-            sudo docker compose up -d 
+            sudo docker-compose stop
+            sudo docker-compose rm django -f
+            sudo docker-compose up -d 
       - name: send message
         uses: appleboy/telegram-action@master
         with:
