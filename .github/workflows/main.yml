@@ -36,12 +36,9 @@ jobs:
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
         pip install -r backend/requirements.txt 
 
-    - name: Test with flake8 and django tests
+    - name: PEP8 test
       run: | 
         python -m flake8
-        cd backend/
-        ./manage.py makemigrations && ./manage.py migrate
-        ./manage.py test
 
     - name: send message
       uses: appleboy/telegram-action@master
