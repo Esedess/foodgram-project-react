@@ -46,7 +46,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'get_ingredients',
         'name',
         'image',
-        'text',
+        'get_text',
         'cooking_time',
         'show_count',
         'publication_date',
@@ -61,6 +61,10 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
     save_on_top = True
     actions = ['Delete', ]
+
+    @admin.display(description='Текст')
+    def get_text(self, obj):
+        return obj.text[:50]
 
     @admin.display(description='Тэги')
     def get_tags(self, obj):
