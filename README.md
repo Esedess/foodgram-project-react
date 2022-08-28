@@ -5,8 +5,8 @@
 <h1 align="center">Привет! </h1>
 <h3 align="center">Я студент факультета Бэкенд. Когорта №9+ Яндекс.Практикум</h3>
 <h3 align="center">Сегодня наш проект - <a href="https://github.com/KapkaDibab/foodgram-project-react" target="_blank">сайт Foodgram, «Продуктовый помощник»</a></h3>
-<h4 align="center"><a href="http://esedess.sytes.net" target="_blank">esedess.sytes.net</a></h4>
-<h4 align="center"><a href="http://158.160.4.31" target="_blank">158.160.4.31</a></h4>
+<h4 align="center">Адрес проекта - <a href="http://esedess.sytes.net" target="_blank">esedess.sytes.net</a></h4>
+<h4 align="center">IP адрес проекта - <a href="http://158.160.4.31" target="_blank">158.160.4.31</a></h4>
 
 
 <p align="left">На этом сервисе пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.</p>
