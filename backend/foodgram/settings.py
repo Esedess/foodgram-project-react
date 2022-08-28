@@ -169,3 +169,5 @@ DJOSER = {
         'current_user': 'api.serializers.UserSerializer',
     },
 }
+
+ADMIN_EMPTY_VALUE_DISPLAY = '-пусто-'

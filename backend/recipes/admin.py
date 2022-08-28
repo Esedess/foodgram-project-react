@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
@@ -16,7 +17,7 @@ class TagAdmin(admin.ModelAdmin):
     )
     list_display_links = ('name',)
     search_fields = ('name', 'color', 'slug',)
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
     save_on_top = True
     actions = ['Delete', ]
 
@@ -26,7 +27,7 @@ class IngredientsAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     search_fields = ('name',)
     search_help_text = 'Поиск по названию'
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
     save_on_top = True
     actions = ['Delete', ]
 
@@ -57,7 +58,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
     search_fields = ('name', 'author', 'tags')
     search_help_text = 'Поиск по названию, автору и тегам'
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
     save_on_top = True
     actions = ['Delete', ]
 
@@ -86,7 +87,7 @@ class FavoriteAdmin(admin.ModelAdmin):
     filter_horizontal = ('recipes',)
     list_display = ('user', 'get_recipes')
     list_filter = ('user', 'recipes')
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
 
     @admin.display(description='Рецепты')
     def get_recipes(self, obj):
@@ -104,7 +105,7 @@ class CartAdmin(admin.ModelAdmin):
     list_display_links = ('user',)
     list_filter = ('user', 'recipes')
     search_fields = ('user',)
-    empty_value_display = '-пусто-'
+    empty_value_display = settings.ADMIN_EMPTY_VALUE_DISPLAY
     save_on_top = True
     actions = ['Delete', ]
     actions_on_top = True

@@ -5,14 +5,13 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filter
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
-from rest_framework import mixins, permissions, serializers, status, viewsets
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .filters import IngredientsFilter, RecipieFilter
 from .pagination import LimitPageNumberPagination
-from .permissions import IsAdminOrOwnerOrReadOnly
+from .permissions import IsAdminOrOwnerOrReadOnly, SubscriberOrAdmin
 from .serializers import (
     CartSerializer, FavoriteSerializer, IngredientsSerializer,
     RecipeCreateUpdateSerializer, RecipeSerializer,
@@ -20,9 +19,7 @@ from .serializers import (
     UserCreateSerializer, UserSerializer,
 )
 from .utils import get_cart_items
-from recipes.models import (
-    Cart, Favorite, Ingredients, IngredientsAmount, Recipe, Tag,
-)
+from recipes.models import Cart, Favorite, Ingredients, Recipe, Tag
 from users.models import Subscribe
 
 User = get_user_model()
@@ -36,7 +33,7 @@ def download_shopping_cart(request):
     """
     user = request.user
     recipes = Cart.objects.get(user=user).recipes.all()
-    filename = user.username + '-shopping-cart.txt'
+    filename = f'{user.username}-shopping-cart.txt'
     cart_items = get_cart_items(recipes)
     response = HttpResponse(cart_items, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format(
@@ -71,7 +68,7 @@ class UserViewSet(
             self.permission_classes = (permissions.AllowAny,)
         elif self.action == 'subscribe':
             self.permission_classes = (
-                IsAdminOrOwnerOrReadOnly,
+                SubscriberOrAdmin,
                 permissions.IsAuthenticatedOrReadOnly
             )
         return super().get_permissions()
@@ -123,21 +120,17 @@ class UserViewSet(
 
         context = {'request': request}
         data = {
-            'user': self.get_user().pk,
+            'user': self.request.user.pk,
             'author': pk,
         }
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
 
         if request.method == 'DELETE':
-            try:
-                instance = Subscribe.objects.get(**serializer.initial_data)
-            except Subscribe.DoesNotExist:
-                msg = 'Вы не подписаны на этого пользователя'
-                raise serializers.ValidationError(msg)
+            instance = Subscribe.objects.get(**serializer.initial_data)
             instance.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        serializer.is_valid(raise_exception=True)
         serializer.save()
 
         queryset = self.get_queryset().get(id=pk)
@@ -192,37 +185,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return CartSerializer
         return RecipeSerializer
 
+    def create_update_repr(self, instanse, status):
+        instance_serializer = RecipeSerializer(
+            instanse, context={'request': self.request})
+        return Response(instance_serializer.data, status)
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        new_recipe = serializer.save(author=self.request.user)
 
-        author = self.request.user
-        ingredients_amount, tags, image, name, text, cooking_time = (
-            serializer.validated_data.values())
-
-        new_recipe = Recipe.objects.create(
-            author=author,
-            name=name,
-            image=image,
-            text=text,
-            cooking_time=cooking_time,
-        )
-
-        for tag in tags:
-            new_recipe.tags.add(tag)
-
-        for ingredients in ingredients_amount:
-            ingridient, amount = ingredients.values()
-            through = IngredientsAmount(
-                recipe=new_recipe,
-                ingredients=ingridient,
-                amount=amount,
-            )
-            through.save()
-
-        instance_serializer = RecipeSerializer(
-            new_recipe, context={'request': self.request})
-        return Response(instance_serializer.data, status.HTTP_201_CREATED)
+        return self.create_update_repr(new_recipe, status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -231,82 +204,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
             instance, data=request.data, partial=partial)
 
         serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
 
-        try:
-            ingredients_amount, tags, image, name, text, cooking_time = (
-                serializer.validated_data.values())
-        except ValueError:
-            msg = 'Не все поля заполнены корректно'
-            raise serializers.ValidationError(msg)
+        return self.create_update_repr(instance, status.HTTP_200_OK)
 
-        instance.image = image
-        instance.name = name
-        instance.text = text
-        instance.cooking_time = cooking_time
-        instance.ingredients.clear()
-        instance.tags.clear()
-        instance.save()
+    def favorite_shopping_cart_mixin(self, request, model, pk):
+        serializer = self.get_serializer(
+            data={'recipes': pk},
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
 
-        for ingredients in ingredients_amount:
-            ingridient, amount = ingredients.values()
-            through = IngredientsAmount(
-                recipe=instance,
-                ingredients=ingridient,
-                amount=amount,
-            )
-            through.save()
+        instance, _ = model.objects.get_or_create(user=self.request.user)
 
-        for tag in tags:
-            instance.tags.add(tag)
+        if request.method == 'DELETE':
+            instance.recipes.remove(pk)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-        instance_serializer = RecipeSerializer(
-            instance, context={'request': self.request})
-        return Response(instance_serializer.data)
+        instance.recipes.add(pk)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=('post', 'delete'))
     def favorite(self, request, pk=None):
-        serializer = self.get_serializer(
-            data={'recipes': pk},
-            context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-
-        instance, _ = Favorite.objects.get_or_create(user=self.request.user)
-
-        if request.method == 'DELETE':
-            if not instance.recipes.filter(pk=pk).exists():
-                message = {'Такого рецепта нет в избранном'}
-                raise ValidationError(message)
-            instance.recipes.remove(pk)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        if instance.recipes.filter(pk=pk).exists():
-            message = {'Такой рецепт уже есть в избранном'}
-            raise ValidationError(message)
-        instance.recipes.add(pk)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return self.favorite_shopping_cart_mixin(request, Favorite, pk)
 
     @action(detail=True, methods=('post', 'delete'))
     def shopping_cart(self, request, pk=None):
-        serializer = self.get_serializer(
-            data={'recipes': pk},
-            context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-
-        instance, _ = Cart.objects.get_or_create(user=self.request.user)
-
-        if request.method == 'DELETE':
-            if not instance.recipes.filter(pk=pk).exists():
-                message = {'Такого рецепта нет в списке покупок'}
-                raise ValidationError(message)
-            instance.recipes.remove(pk)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        if instance.recipes.filter(pk=pk).exists():
-            message = {'Такой рецепт уже есть в списке покупок'}
-            raise ValidationError(message)
-        instance.recipes.add(pk)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return self.favorite_shopping_cart_mixin(request, Cart, pk)
