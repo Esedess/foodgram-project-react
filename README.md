@@ -22,5 +22,6 @@
 ### http://esedess.sytes.net/admin/
 ### http://158.160.4.31/admin/
 ### login/password - admin/admin
+### email - admin@admin.ru
 
 🌱 [Никита Трошкин](https://github.com/KapkaDibab)
