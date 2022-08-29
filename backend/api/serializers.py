@@ -205,7 +205,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        ingredients, tags, image, name, text, cooking_time = data.values()
+        ingredients = data.get('ingredients')
+        tags = data.get('tags')
+        cooking_time = data.get('cooking_time')
         if len(ingredients) == 0:
             raise serializers.ValidationError(
                 'Необходимо указать ингредиенты для рецепта.'
