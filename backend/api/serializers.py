@@ -204,24 +204,14 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('author',)
 
-    def validate_tags(self, value):
-        if len(value) == 0:
-            raise serializers.ValidationError('Укажите теги рецепта')
-
-        for tag in value:
-            if tag not in Tag.objects.all():
-                raise serializers.ValidationError(
-                    'Такого тега не существует!'
-                )
-        return value
-
-    def validate_ingredients(self, value):
-        if len(value) == 0:
+    def validate(self, data):
+        ingredients, tags, image, name, text, cooking_time = data.values()
+        if len(ingredients) == 0:
             raise serializers.ValidationError(
                 'Необходимо указать ингредиенты для рецепта.'
             )
         set_ingr = set()
-        for ingredient in value:
+        for ingredient in ingredients:
             ingredient = ingredient.get('id')
             if ingredient in set_ingr:
                 raise serializers.ValidationError(
@@ -229,18 +219,19 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                     'ингредиентов.'
                 )
             set_ingr.add(ingredient)
-        return value
+        if len(tags) == 0:
+            raise serializers.ValidationError('Укажите теги рецепта')
 
-    def validate_cooking_time(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Нужно указать время приготовления.'
-            )
-        if value <= 0:
+        for tag in tags:
+            if tag not in Tag.objects.all():
+                raise serializers.ValidationError(
+                    'Такого тега не существует!'
+                )
+        if cooking_time <= 0:
             raise serializers.ValidationError(
                 'Время приготовления не может быть 0 или меньше.'
             )
-        return value
+        return data
 
     def add_ingredients(self, instance, ingrs_data):
         for ingredients in ingrs_data:
