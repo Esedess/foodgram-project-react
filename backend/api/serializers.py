@@ -215,6 +215,33 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 )
         return value
 
+    def validate_ingredients(self, value):
+        if len(value) == 0:
+            raise serializers.ValidationError(
+                'Необходимо указать ингредиенты для рецепта.'
+            )
+        set_ingr = set()
+        for ingredient in value:
+            ingredient = ingredient.get('id')
+            if ingredient in set_ingr:
+                raise serializers.ValidationError(
+                    'В рецепте не может быть нескольких одинаковых '
+                    'ингредиентов.'
+                )
+            set_ingr.add(ingredient)
+        return value
+
+    def validate_cooking_time(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Нужно указать время приготовления.'
+            )
+        if value <= 0:
+            raise serializers.ValidationError(
+                'Время приготовления не может быть 0 или меньше.'
+            )
+        return value
+
     def add_ingredients(self, instance, ingrs_data):
         for ingredients in ingrs_data:
             ingridient, amount = ingredients.values()
@@ -254,8 +281,9 @@ class FavoriteAndCartSerializerMixin(serializers.ModelSerializer):
     def favorite_cart_validator(self, data, model):
         request = self.context.get('request')
         recipe = data.get('recipes')
-        favorite_exist = model.objects.get(
-            user=request.user).recipes.filter(pk=recipe.pk).exists()
+        instanse, _ = model.objects.get_or_create(
+            user=request.user)
+        favorite_exist = instanse.recipes.filter(pk=recipe.pk).exists()
         if request.method == 'DELETE':
             if not favorite_exist:
                 msg = 'Вы не добавляли этот рецепт'
