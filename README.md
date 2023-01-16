@@ -28,4 +28,4 @@
 ### login/password - admin/admin
 ### email - admin@admin.ru
 
-🌱 [Никита Трошкин](https://github.com/KapkaDibab)
+🌱 [Никита Трошкин](https://github.com/Esedess)
