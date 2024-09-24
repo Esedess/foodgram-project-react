@@ -23,8 +23,8 @@
 
 
 ### Django admin panel
-### http://esedess.sytes.net/admin/
-### http://158.160.4.31/admin/
+### http://localhost/admin/
+### 
 ### login/password - admin/admin
 ### email - admin@admin.ru
 
