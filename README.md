@@ -21,6 +21,85 @@
 - 🔭 docker-compose
 - 🔭 GitHub Actions
 
+<details>
+  <summary><h3 align="left">Как запустить проект:</h3></summary>
+
+### Установить Докер:
+```
+sudo apt update
+
+sudo apt upgrade
+
+sudo apt install docker
+```
+
+### Клонировать репозиторий и перейти в него в командной строке:
+```
+git clone https://github.com/Esedess/foodgram-project-react.git
+
+cd foodgram-project-react
+```
+
+### Запустить создание и запуск контейнеров:
+```
+sudo docker-compose -f infra/docker-compose.yml up
+
+# или воспользоваться Make
+make up
+```
+
+### Выполнить миграции:
+```
+sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py makemigrations
+sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py migrate --run-syncdb
+
+# или воспользоваться Make
+make db
+```
+
+### Создать суперпользователя:
+```
+sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py createsuperuser
+
+# или воспользоваться Make
+make createsuperuser
+```
+
+### Создать статику:
+```
+sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py collectstatic --no-input
+
+# или воспользоваться Make
+make collectstatic
+```
+
+### Выключить и удалить контейнеры:
+```
+sudo docker-compose -f infra/docker-compose.yml  down -v
+
+# или воспользоваться Make
+make down
+```
+### --------------------------------------------------------------
+
+### Если вы внесли изменения в код контейнеры нужно перезапустить:
+```
+sudo docker-compose -f infra/docker-compose.yml up -d --build
+
+# или воспользоваться Make
+make rebuild
+```
+
+### Наполнение БД тестовыми значениями:
+```
+sudo docker-compose -f infra/docker-compose.yml exec django python3 manage.py import_all
+
+# или воспользоваться Make
+make db_import
+```
+</details>
+
+<h4 align="center">После запуска проект будет доступен по адресу- <a href="http://localhost/" target="_blank">esedess.sytes.net</a></h4>
 
 ### Django admin panel
 ### http://localhost/admin/
