@@ -1,6 +1,5 @@
 # foodgram-project-react
 
-![workflow!](https://github.com/KapkaDibab/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 <h1 align="center">Привет! </h1>
 <h3 align="center">Я студент факультета Бэкенд. Когорта №9+ Яндекс.Практикум</h3>
@@ -99,7 +98,7 @@ make db_import
 ```
 </details>
 
-<h4 align="center">После запуска проект будет доступен по адресу- <a href="http://localhost/" target="_blank">esedess.sytes.net</a></h4>
+<h4 align="center">После запуска проект будет доступен по адресу- <a href="http://localhost/" target="_blank">localhost</a></h4>
 
 ### Django admin panel
 ### http://localhost/admin/
